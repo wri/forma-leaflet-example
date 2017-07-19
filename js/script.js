@@ -1,24 +1,40 @@
 function init() {
 
-    // initial settings on page load
-    var minDateFmt = '1/1/2012'
-    var maxDateFmt = '12/31/2017'
-	
-	// get today's date to pull proper forma
+	// get last valid date of forma
+	getLastFormaDate(function(dateResp) {
+		
+		// with this information, pull the proper tiles
+		loadMap(dateResp)
+	})
+
+}
+
+function getLastFormaDate(callback) {
 	var today = new Date();
-	var dd = today.getDate();
-	var mm = today.getMonth()+1; //January is 0!
-	var yyyy = today.getFullYear();
+	var currentYear = today.getFullYear().toString();
+	
+	// FORMA is not published every day
+	// this API will tell you what dates we have FORMA tiles for
+    var url = 'https://api-dot-forma-250.appspot.com/dates?year=' + currentYear
 
-	if(dd<10) {
-		dd = '0'+dd
-	} 
+	// talk to the API to get the last valid date
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+			var resp = JSON.parse(xhr.responseText)
+			console.log(resp)
+			
+			// extract last valid data from response
+			var lastDate = resp[currentYear].slice(-1)[0].replace(/-/g, '');
+            callback(lastDate);
+        }
+    }
+    xhr.open('GET', url, true);
+    xhr.send(null);
+	
+}
 
-	if(mm<10) {
-		mm = '0'+mm
-	}
-	today = yyyy + mm + dd;
-
+function loadMap(today) {
     // create canvas layer place holder
     var CanvasLayer = new Canvas({
         maxZoom: 9,
@@ -204,5 +220,4 @@ function init() {
 
         return html
     }
-
 }
