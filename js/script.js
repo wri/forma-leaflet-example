@@ -22,7 +22,6 @@ function getLastFormaDate(callback) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState == XMLHttpRequest.DONE) {
 			var resp = JSON.parse(xhr.responseText)
-			console.log(resp)
 			
 			// extract last valid data from response
 			var lastDate = resp[currentYear].slice(-1)[0].replace(/-/g, '');
@@ -60,6 +59,9 @@ function loadMap(today) {
         }
 
     });
+	
+	var minDateFmt;
+	var maxDateFmt;
 
     // When the slider value changes, update the input and span
     slider.noUiSlider.on('set', function(values, handle) {
@@ -214,6 +216,11 @@ function loadMap(today) {
 
     // build the popup for the polygon
     var buildPopupHTML = function() {
+		
+		var values = slider.noUiSlider.get()
+		minDateFmt = formatDate(slider_to_date(values[0]))
+        maxDateFmt = formatDate(slider_to_date(values[1]))
+		
         var html = 'FORMA Alerts by AOI<br><hr>'
         html += '<strong>Period</strong>: ' + minDateFmt + ' - ' + maxDateFmt + '<br>'
         html += '<button name="button" onclick="countFORMAInAOI()" >Run analysis</button>'
